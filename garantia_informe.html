@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PARCELL C.A. - Inicio de Sesión</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .login-container {
+            background-color: #1e1e1e;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+        }
+        .login-container h2 {
+            margin-bottom: 30px;
+            color: #3cb371;
+        }
+        .login-container input[type="text"], .login-container input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #444;
+            border-radius: 6px;
+            box-sizing: border-box;
+            background-color: #2b2b2b;
+            color: #e0e0e0;
+        }
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            background-color: #3cb371;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .login-container button:hover {
+            background-color: #2e8b57;
+        }
+        .error-message {
+            color: #ff6347;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Inicio de Sesión</h2>
+        <input type="text" id="username" placeholder="Usuario">
+        <input type="password" id="password" placeholder="Contraseña">
+        <button id="loginButton">Iniciar Sesión</button>
+        <p id="error-message" class="error-message"></p>
+    </div>
+
+    <script>
+        const USERS = {
+            'parcell.caracas': 'garantia_informe_caracas.html',
+            'parcell.valencia': 'garantia_informe_valencia.html',
+            'parcell.maracay': 'garantia_informe_maracay.html',
+            'parcell.san.diego': 'garantia_informe_san_diego.html'
+        };
+        const PASSWORD = 'parcell.c.a';
+
+        document.getElementById('loginButton').addEventListener('click', function() {
+            const usernameInput = document.getElementById('username').value.toLowerCase();
+            const passwordInput = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+
+            if (USERS[usernameInput] && passwordInput === PASSWORD) {
+                sessionStorage.setItem('isAuthenticated', 'true');
+                window.location.href = USERS[usernameInput];
+            } else {
+                errorMessage.textContent = 'Usuario o contraseña incorrectos.';
+            }
+        });
+    </script>
+</body>
+</html>

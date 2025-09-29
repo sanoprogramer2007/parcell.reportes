@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PARCELL C.A. - Recibo de Informes</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 1000px;
+            border: 1px solid #333;
+            box-sizing: border-box;
+        }
+        h1, h2, h3 {
+            text-align: center;
+            color: #3cb371;
+        }
+        .data-box {
+            border: 1px solid #444;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #2b2b2b;
+            margin-bottom: 20px;
+        }
+        .data-box h4 {
+            margin-top: 0;
+            color: #3cb371;
+        }
+        .data-box p {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        .data-box p strong {
+            color: #3cb371;
+            display: inline-block;
+            width: 200px;
+        }
+        .export-to-table-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #64b5f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .export-to-table-button:hover {
+            background-color: #42a5f5;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: flex-end;
+        }
+        .action-buttons .delete-button {
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        .delete-button {
+            background-color: #e57373;
+            color: white;
+        }
+        .delete-button:hover {
+            background-color: #ef5350;
+        }
+    </style>
+</head>
+<body>
+    <h1>PARCELL C.A.</h1>
+    <h2 id="pageTitle">PARCELL Recibo de Informes</h2>
+    <div class="container">
+        <h3>Buzón de Informes Recibidos</h3>
+        <div id="inboxContainer">
+            </div>
+        <button id="exportToTableButton" class="export-to-table-button">Ver Informes en Tabla</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!sessionStorage.getItem('isAuthenticated')) {
+                window.location.href = 'garantia_informe.html';
+                return;
+            }
+
+            const sede = window.location.pathname.split('_').slice(-1)[0].replace('.html', '');
+            const localStorageKey = `warranties_${sede.toLowerCase().replace(' ', '_')}`;
+
+            document.getElementById('pageTitle').textContent = `PARCELL Recibo de Informes - ${sede.charAt(0).toUpperCase() + sede.slice(1)}`;
+
+            const storedWarranties = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+
+            renderInbox(storedWarranties, localStorageKey);
+
+            document.getElementById('exportToTableButton').addEventListener('click', function() {
+                window.location.href = `garantia_tablas_${sede}.html`;
+            });
+        });
+
+        function renderInbox(warranties, key) {
+            const inboxContainer = document.getElementById('inboxContainer');
+            inboxContainer.innerHTML = '';
+            if (warranties.length === 0) {
+                inboxContainer.innerHTML = `<p style="text-align: center;">El buzón está vacío.</p>`;
+                return;
+            }
+            warranties.forEach((warranty, index) => {
+                const dataBox = document.createElement('div');
+                dataBox.className = 'data-box';
+                dataBox.innerHTML = `
+                    <h4>Caso de Garantía: ${warranty.caseNumber}</h4>
+                    <p><strong>Nombre del Cliente:</strong> ${warranty.clientName}</p>
+                    <p><strong>Teléfono:</strong> ${warranty.clientPhone}</p>
+                    <p><strong>Correo:</strong> ${warranty.clientEmail}</p>
+                    <p><strong>Número de Factura:</strong> ${warranty.invoiceNumber}</p>
+                    <p><strong>Código de Producto:</strong> ${warranty.productCode}</p>
+                    <p><strong>Descripción del Reclamo:</strong> ${warranty.issueDescription}</p>
+                    <p><strong>Tipo de Daño:</strong> ${warranty.tipoDeDaño}</p>
+                    <p><strong>Equipo:</strong> ${warranty.equipo} - ${warranty.especificacionEquipo}</p>
+                    <p><strong>Fecha de Compra:</strong> ${warranty.purchaseDate}</p>
+                    <p><strong>Fecha de Ingreso:</strong> ${warranty.receptionDate}</p>
+                    <p><strong>Sede:</strong> ${warranty.sede}</p>
+                    <p><strong>Empleado que Recibe:</strong> ${warranty.employee}</p>
+                    <p><strong>Estado:</strong> ${warranty.status}</p>
+                    <p><strong>Recibido:</strong> ${warranty.recibido ? 'Sí' : 'No'}</p>
+                    <div class="action-buttons">
+                        <button class="delete-button" data-index="${index}">Eliminar</button>
+                    </div>
+                `;
+                inboxContainer.appendChild(dataBox);
+            });
+
+            document.querySelectorAll('.delete-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = this.getAttribute('data-index');
+                    deleteForm(index, key);
+                });
+            });
+        }
+
+        function deleteForm(index, key) {
+            let warranties = JSON.parse(localStorage.getItem(key)) || [];
+            warranties.splice(index, 1);
+            localStorage.setItem(key, JSON.stringify(warranties));
+            renderInbox(warranties, key);
+        }
+    </script>
+</body>
+</html>

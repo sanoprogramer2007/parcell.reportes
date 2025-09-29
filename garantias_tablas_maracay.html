@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PARCELL C.A. - Informes en Tabla</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 1200px;
+            border: 1px solid #333;
+            box-sizing: border-box;
+            overflow-x: auto;
+        }
+        h1, h2, h3 {
+            text-align: center;
+            color: #3cb371;
+        }
+        .button-group {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 20px;
+        }
+        .back-button {
+            padding: 12px 24px;
+            background-color: #64b5f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        .back-button:hover {
+            background-color: #42a5f5;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            text-align: left;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #444;
+        }
+        thead {
+            background-color: #2b2b2b;
+        }
+        tbody tr:nth-child(even) {
+            background-color: #1e1e1e;
+        }
+        tbody tr:hover {
+            background-color: #2b2b2b;
+        }
+        .received-button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        .received-button.is-received {
+            background-color: #2e8b57;
+        }
+        .received-button.not-received {
+            background-color: #e57373;
+        }
+        .export-button {
+            background-color: #555;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+        .export-button:hover {
+            background-color: #777;
+        }
+    </style>
+</head>
+<body>
+    <h1>PARCELL C.A.</h1>
+    <h2 id="pageTitle">Reporte de Garantías en Tabla</h2>
+    <div class="button-group">
+        <a href="#" id="backButton" class="back-button">Volver a Informes</a>
+    </div>
+    <div class="container">
+        <table id="reportsTable">
+            <thead>
+                <tr>
+                    <th>Caso de Garantía</th>
+                    <th># Factura</th>
+                    <th>Fecha Ingreso</th>
+                    <th>Tiempo de Gestión</th>
+                    <th>Sede</th>
+                    <th>Cliente</th>
+                    <th>Teléfono</th>
+                    <th>Correo</th>
+                    <th>Código Producto</th>
+                    <th>Descripción Reclamo</th>
+                    <th>Tipo de Daño</th>
+                    <th>Equipo</th>
+                    <th>Especificación</th>
+                    <th>Fecha Compra</th>
+                    <th>Estado</th>
+                    <th>Recibido</th>
+                    <th>Exportar</th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!sessionStorage.getItem('isAuthenticated')) {
+                window.location.href = 'garantia_informe.html';
+                return;
+            }
+
+            const sede = window.location.pathname.split('_').slice(-1)[0].replace('.html', '');
+            const localStorageKey = `warranties_${sede.toLowerCase().replace(' ', '_')}`;
+
+            document.getElementById('pageTitle').textContent = `Reporte de Garantías en Tabla - ${sede.charAt(0).toUpperCase() + sede.slice(1)}`;
+            document.getElementById('backButton').href = `garantia_informe_${sede}.html`;
+
+            loadReports(localStorageKey);
+            setInterval(() => updateTimers(localStorageKey), 1000);
+        });
+
+        function loadReports(key) {
+            const warranties = JSON.parse(localStorage.getItem(key)) || [];
+            const tableBody = document.querySelector('#reportsTable tbody');
+            tableBody.innerHTML = '';
+            
+            if (warranties.length === 0) {
+                const row = tableBody.insertRow();
+                const cell = row.insertCell(0);
+                cell.colSpan = 17;
+                cell.textContent = "No hay informes disponibles.";
+                cell.style.textAlign = 'center';
+                return;
+            }
+            
+            warranties.forEach((warranty, index) => {
+                const row = tableBody.insertRow();
+                const receivedText = warranty.recibido ? 'Marcar como No Recibido' : 'Marcar como Recibido';
+                const receivedClass = warranty.recibido ? 'is-received' : 'not-received';
+                const receptionTime = new Date(warranty.receptionDate).getTime();
+                const now = new Date().getTime();
+                const diff = now - receptionTime;
+
+                let timerDisplay = 'Calculando...';
+                if (warranty.recibido) {
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                    timerDisplay = `${days} días, ${hours}h, ${minutes}m, ${seconds}s`;
+                }
+
+                row.innerHTML = `
+                    <td>${warranty.caseNumber}</td>
+                    <td>${warranty.invoiceNumber}</td>
+                    <td>${warranty.receptionDate}</td>
+                    <td class="timer" data-date="${warranty.receptionDate}" data-recibido="${warranty.recibido}" data-index="${index}">${timerDisplay}</td>
+                    <td>${warranty.sede}</td>
+                    <td>${warranty.clientName}</td>
+                    <td>${warranty.clientPhone}</td>
+                    <td>${warranty.clientEmail}</td>
+                    <td>${warranty.productCode}</td>
+                    <td>${warranty.issueDescription}</td>
+                    <td>${warranty.tipoDeDaño}</td>
+                    <td>${warranty.equipo}</td>
+                    <td>${warranty.especificacionEquipo}</td>
+                    <td>${warranty.purchaseDate}</td>
+                    <td>${warranty.status}</td>
+                    <td><button class="received-button ${receivedClass}" data-index="${index}">${receivedText}</button></td>
+                    <td><button class="export-button" onclick="exportToSpreadsheet(${index})">Exportar</button></td>
+                `;
+            });
+
+            document.querySelectorAll('.received-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    toggleReceived(button, key);
+                });
+            });
+        }
+
+        function updateTimers(key) {
+            const warranties = JSON.parse(localStorage.getItem(key)) || [];
+            const timerCells = document.querySelectorAll('.timer');
+
+            timerCells.forEach((timer, index) => {
+                if (warranties.length > index) {
+                    const isReceived = warranties[index].recibido;
+                    if (!isReceived) {
+                        const receptionDate = timer.getAttribute('data-date');
+                        if (receptionDate) {
+                            const receptionTime = new Date(receptionDate).getTime();
+                            const now = new Date().getTime();
+                            const diff = now - receptionTime;
+
+                            if (diff >= 0) {
+                                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                                timer.textContent = `${days} días, ${hours}h, ${minutes}m, ${seconds}s`;
+                            } else {
+                                timer.textContent = "Fecha inválida";
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function toggleReceived(button, key) {
+            const index = button.getAttribute('data-index');
+            let warranties = JSON.parse(localStorage.getItem(key)) || [];
+            
+            if (index >= 0 && index < warranties.length) {
+                warranties[index].recibido = !warranties[index].recibido;
+                localStorage.setItem(key, JSON.stringify(warranties));
+                
+                if (warranties[index].recibido) {
+                    button.textContent = 'Marcar como No Recibido';
+                    button.classList.remove('not-received');
+                    button.classList.add('is-received');
+                } else {
+                    button.textContent = 'Marcar como Recibido';
+                    button.classList.remove('is-received');
+                    button.classList.add('not-received');
+                }
+
+                const timerCell = document.querySelector(`.timer[data-index="${index}"]`);
+                if (warranties[index].recibido) {
+                    const receptionDate = timerCell.getAttribute('data-date');
+                    const receptionTime = new Date(receptionDate).getTime();
+                    const now = new Date().getTime();
+                    const diff = now - receptionTime;
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                    timerCell.textContent = `${days} días, ${hours}h, ${minutes}m, ${seconds}s`;
+                }
+            }
+        }
+        
+        function exportToSpreadsheet(index) {
+            const sede = window.location.pathname.split('_').slice(-1)[0].replace('.html', '');
+            const localStorageKey = `warranties_${sede.toLowerCase().replace(' ', '_')}`;
+            const warranties = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+            
+            if (index >= 0 && index < warranties.length) {
+                const report = warranties[index];
+                
+                const headers = [
+                    'Caso de Garantía',
+                    '# Factura',
+                    'Fecha Ingreso',
+                    'Tiempo de Gestión',
+                    'Sede',
+                    'Cliente',
+                    'Teléfono',
+                    'Correo',
+                    'Código Producto',
+                    'Descripción Reclamo',
+                    'Tipo de Daño',
+                    'Equipo',
+                    'Especificación',
+                    'Fecha Compra',
+                    'Estado',
+                    'Recibido'
+                ];
+                
+                const data = [
+                    report.caseNumber,
+                    report.invoiceNumber,
+                    report.receptionDate,
+                    document.querySelector(`.timer[data-index="${index}"]`).textContent,
+                    report.sede,
+                    report.clientName,
+                    report.clientPhone,
+                    report.clientEmail,
+                    report.productCode,
+                    report.issueDescription,
+                    report.tipoDeDaño,
+                    report.equipo,
+                    report.especificacionEquipo,
+                    report.purchaseDate,
+                    report.status,
+                    report.recibido ? 'Sí' : 'No'
+                ];
+                
+                const content = `${headers.join('\t')}\n${data.join('\t')}`;
+                
+                const blob = new Blob([content], { type: 'text/tab-separated-values;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.setAttribute('href', url);
+                link.setAttribute('download', `Reporte_${report.caseNumber}.xls`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PARCELL C.A. - PARCELL FALLAS</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid #333;
+            box-sizing: border-box;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #3cb371;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="date"], input[type="tel"], input[type="email"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #444;
+            border-radius: 6px;
+            box-sizing: border-box;
+            background-color: #2b2b2b;
+            color: #e0e0e0;
+        }
+        input[type="text"]:focus, input[type="date"]:focus, input[type="tel"]:focus, input[type="email"]:focus, select:focus, textarea:focus {
+            border-color: #3cb371;
+            outline: none;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #3cb371;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #2e8b57;
+        }
+        #equipoEspec div {
+            margin-top: 10px;
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 20px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>PARCELL C.A.</h1>
+    <h2>PARCELL FALLAS</h2>
+    <div class="container">
+        <form id="warrantyForm">
+            <div class="form-group">
+                <label for="caseNumber">Número de Caso de Garantía:</label>
+                <input type="text" id="caseNumber" name="caseNumber" readonly>
+            </div>
+            <div class="form-group">
+                <label for="clientName">Nombre del Cliente:</label>
+                <input type="text" id="clientName" name="clientName" required>
+            </div>
+            <div class="form-group">
+                <label for="clientPhone">Teléfono del Cliente:</label>
+                <input type="tel" id="clientPhone" name="clientPhone" required>
+            </div>
+            <div class="form-group">
+                <label for="clientEmail">Correo del Cliente:</label>
+                <input type="email" id="clientEmail" name="clientEmail" required>
+            </div>
+            <div class="form-group">
+                <label for="invoiceNumber">Número de Factura:</label>
+                <input type="text" id="invoiceNumber" name="invoiceNumber" required>
+            </div>
+            <div class="form-group">
+                <label for="productCode">Código de Producto:</label>
+                <input type="text" id="productCode" name="productCode" required>
+            </div>
+            <div class="form-group">
+                <label for="issueDescription">Descripción del Reclamo:</label>
+                <textarea id="issueDescription" name="issueDescription" rows="4" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="tipoDeDaño">Tipo de Daño:</label>
+                <select id="tipoDeDaño" name="tipoDeDaño" required>
+                    <option value="">Seleccione el tipo de daño</option>
+                    <option value="Rayones">Rayones</option>
+                    <option value="Daños en Pantalla">Daños en Pantalla</option>
+                    <option value="Daños por Agua">Daños por Agua</option>
+                    <option value="Problemas de Carga">Problemas de Carga</option>
+                    <option value="Problemas de Audio">Problemas de Audio</option>
+                    <option value="Otro">Otro (especificar en descripción)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="equipo">Equipo:</label>
+                <select id="equipo" name="equipo" required>
+                    <option value="">Seleccione el equipo</option>
+                    <option value="Telefono">Teléfono</option>
+                    <option value="Laptop">Laptop</option>
+                    <option value="Audifonos">Audífonos</option>
+                    <option value="Tablet">Tablet</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+            <div id="equipoEspec" class="form-group" style="display: none;">
+                <label id="especLabel" for="especificacionEquipo"></label>
+                <input type="text" id="especificacionEquipo" name="especificacionEquipo">
+            </div>
+            <div class="form-group">
+                <label for="purchaseDate">Fecha de Compra:</label>
+                <input type="date" id="purchaseDate" name="purchaseDate" required>
+            </div>
+            <div class="form-group">
+                <label for="receptionDate">Fecha de Ingreso de la Garantía:</label>
+                <input type="date" id="receptionDate" name="receptionDate" required>
+            </div>
+            <div class="form-group">
+                <label for="sede">Sede donde se recibe:</label>
+                <select id="sede" name="sede" required>
+                    <option value="">Seleccione una sede</option>
+                    <option value="Caracas">Caracas</option>
+                    <option value="Valencia">Valencia</option>
+                    <option value="Maracay">Maracay</option>
+                    <option value="San Diego">San Diego</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="employee">Empleado que recibe:</label>
+                <input type="text" id="employee" name="employee" required>
+            </div>
+            <div class="form-group">
+                <label for="status">Estado:</label>
+                <select id="status" name="status" required>
+                    <option value="Abierto">Abierto</option>
+                    <option value="Cerrado">Cerrado</option>
+                    <option value="En Proceso">En Proceso</option>
+                    <option value="Pendiente">Pendiente</option>
+                </select>
+            </div>
+            <button type="submit">Enviar Reporte</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let lastCaseNumber = localStorage.getItem('lastCaseNumber');
+            let nextCaseNumber;
+            if (lastCaseNumber) {
+                const parts = lastCaseNumber.split('-');
+                const number = parseInt(parts[1]) + 1;
+                nextCaseNumber = `GT3-${String(number).padStart(3, '0')}`;
+            } else {
+                nextCaseNumber = 'GT3-001';
+            }
+            document.getElementById('caseNumber').value = nextCaseNumber;
+
+            const equipoSelect = document.getElementById('equipo');
+            const equipoEspecDiv = document.getElementById('equipoEspec');
+            const especLabel = document.getElementById('especLabel');
+            const especInput = document.getElementById('especificacionEquipo');
+
+            equipoSelect.addEventListener('change', function() {
+                const selectedValue = this.value;
+                if (selectedValue === 'Otro') {
+                    equipoEspecDiv.style.display = 'block';
+                    especLabel.textContent = 'Especifica qué equipo es:';
+                    especInput.required = true;
+                } else if (selectedValue && selectedValue !== 'Otro') {
+                    equipoEspecDiv.style.display = 'block';
+                    especLabel.textContent = `Especifica la marca de ${selectedValue.toLowerCase()}:`;
+                    especInput.required = true;
+                } else {
+                    equipoEspecDiv.style.display = 'none';
+                    especInput.required = false;
+                    especInput.value = '';
+                }
+            });
+
+            document.getElementById('warrantyForm').addEventListener('submit', async function(event) {
+                event.preventDefault();
+                const sede = document.getElementById('sede').value;
+                const formData = {
+                    caseNumber: document.getElementById('caseNumber').value,
+                    clientName: document.getElementById('clientName').value,
+                    clientPhone: document.getElementById('clientPhone').value,
+                    clientEmail: document.getElementById('clientEmail').value,
+                    invoiceNumber: document.getElementById('invoiceNumber').value,
+                    productCode: document.getElementById('productCode').value,
+                    issueDescription: document.getElementById('issueDescription').value,
+                    tipoDeDaño: document.getElementById('tipoDeDaño').value,
+                    equipo: document.getElementById('equipo').value,
+                    especificacionEquipo: document.getElementById('especificacionEquipo').value,
+                    purchaseDate: document.getElementById('purchaseDate').value,
+                    receptionDate: document.getElementById('receptionDate').value,
+                    sede: sede,
+                    employee: document.getElementById('employee').value,
+                    status: document.getElementById('status').value,
+                    recibido: false
+                };
+                
+                const localStorageKey = `warranties_${sede.toLowerCase().replace(' ', '_')}`;
+                const storedWarranties = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+                storedWarranties.push(formData);
+                localStorage.setItem(localStorageKey, JSON.stringify(storedWarranties));
+                localStorage.setItem('lastCaseNumber', formData.caseNumber);
+
+                window.location.href = 'garantia_gracias.html';
+            });
+        });
+    </script>
+</body>
+</html>
